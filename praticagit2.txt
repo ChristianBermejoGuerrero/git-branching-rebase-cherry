@@ -1,0 +1,763 @@
+PRACTICA GIT: BRANCHING, REBASE, CHERRY PICK Y REMOTES
+
+EJERCICIO 1
+
+1.1 mkdir alpha
+    cd alpha
+    git init
+
+1.2 mkdir data
+
+1.3 echo a > data/letra.txt
+
+1.4 echo 1 > data/numero.txt
+
+1.5 git add data/letra.txt
+git add data/numero.txt
+git status
+En la rama master
+
+Commit inicial
+
+Cambios para hacer commit:
+  (use «git rm --cached <archivo>...» para sacar del stage)
+
+	nuevo archivo: data/letra.txt
+	nuevo archivo: data/numero.txt
+
+git commit -m "a 1"
+[master (root-commit) b5f8c7d] a 1
+ 2 files changed, 2 insertions(+)
+ create mode 100644 data/letra.txt
+ create mode 100644 data/numero.txt
+
+1.6 echo 2 > data/numero.txt
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ cat data/numero.txt
+2
+
+1.7 cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ git add data/numero.txt
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ git status
+En la rama master
+Cambios para hacer commit:
+  (use «git reset HEAD <archivo>...» para sacar del stage)
+
+	modificado:    data/numero.txt
+
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ git commit -m "a 2"
+[master 208125a] a 2
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+1.8  gitgraph
+* 208125a (HEAD -> master) a 2
+* b5f8c7d a 1
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ git checkout 208125aedf6a382a2992d895a3d40c5ecf5058dc
+Note: checking out '208125aedf6a382a2992d895a3d40c5ecf5058dc'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by performing another checkout.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -b with the checkout command again. Example:
+
+  git checkout -b <new-branch-name>
+
+HEAD se encuentra en 208125a... a 2
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ gitgraph
+* 208125a (HEAD, master) a 2
+* b5f8c7d a 1
+
+1.9  echo 3 > data/numero.txt
+
+1.10 git add numero.txt
+     git commit -m "a 3"
+gitgraph
+* e472b56 (HEAD) a 3
+* 208125a (master) a 2
+* b5f8c7d a 1
+
+1.11 git branch new-feature
+
+1.12 cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ git branch
+* (HEAD detached from 208125a)
+  master
+  new-feature
+
+1.13 git checkout master
+git branch
+* master
+  new-feature
+
+1.14 git diff master..new-feature (DIREFENCIAS ENTRE LA RAMA MASTER Y LA RAMA NEW-FEATURE)
+diff --git a/data/numero.txt b/data/numero.txt
+index 0cfbf08..00750ed 100644
+--- a/data/numero.txt
++++ b/data/numero.txt
+@@ -1 +1 @@
+-2
++3
+
+1.15 echo "'789'" > data/numero.txt
+git checkout new-feature
+error: Your local changes to the following files would be overwritten by checkout:
+	data/numero.txt
+Please, commit your changes or stash them before you can switch branches.
+Aborting
+
+1.16 git stash
+Saved working directory and index state WIP on master: 208125a a 2
+HEAD is now at 208125a a 2
+cbermejo@beta08:~/ISI/practicaISI-GIT2/alpha$ cat data/numero.txt
+2 (NO TIENE 789)
+
+git status
+En la rama master
+nothing to commit, working directory clean
+
+git checkout new-feature
+
+1.17 gitgraph
+*   fc002f8 (refs/stash) WIP on master: 208125a a 2
+|\
+| * 4c74d1a index on master: 208125a a 2
+|/
+| * e472b56 (HEAD -> new-feature) a 3
+|/
+* 208125a (master) a 2
+* b5f8c7d a 1
+
+1.18 no cambia nada
+
+1.19 gitgraph
+*   6a80f22 (refs/stash) WIP on master: 208125a a 2
+|\
+| * e92f4d6 index on master: 208125a a 2
+|/
+| * e472b56 (HEAD -> master, new-feature) a 3
+|/
+* 208125a a 2
+* b5f8c7d a 1
+
+cat data/numero.txt
+3
+
+git stash apply
+Automezclado data/numero.txt
+CONFLICTO(contenido): conflicto de fusión en data/numero.txt
+gitgraph
+* e472b56 (HEAD -> master, new-feature) a 3
+* 208125a a 2
+* b5f8c7d a 1
+cbermejo@beta08:~/ISI/practicaISI-GIT2/alpha$ cat data/numero.txt
+<<<<<<< Updated upstream
+3
+=======
+'789'
+>>>>>>> Stashed changes
+
+1.18 y 1.19
+
+1.20 modificamos data/numero.txt, git add
+
+1.21 git commit a 4
+
+1.22 git checkout new-feature
+
+1.23 echo b > data/letra.txt
+cat data/letra.txt
+b
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ cat data/numero.txt
+3
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$
+
+1.24 git add, git commit "b 3"
+
+1.25 git merge master. (SE HA CREADO UN NUEVO COMMIT, DATA AHORA TIENE B Y 4)
+
+1.26 git checkout master
+
+1.27 cat data/numero.txt
+4
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ cat data/letra.txt
+a
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ git merge new-feature
+Updating 71b9562..9d27736
+Fast-forward
+ data/letra.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ cat data/letra.txt
+b
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ cat data/numero.txt
+4
+
+1.28 git checkout new-feature
+
+1.29 echo 5 > data/numero.txt
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ cat data/numero.txt
+5
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ cat data/letra.txt
+b
+
+1.30 git add, git commit "b 5"
+
+1.31 git checkout master
+
+1.32 echo 6 > data/numero.txt
+
+1.33 git add, git commit "b 6"
+gitgraph
+* 244501b (HEAD -> master) b 6
+| * acfe03a (new-feature) b 5
+|/
+*   9d27736 b 4
+|\
+| * 71b9562 a 4
+* | cbf992f b 3
+|/
+* e472b56 a 3
+* 208125a a 2
+* b5f8c7d a 1
+
+1.34 git diff master..new-feature
+diff --git a/data/numero.txt b/data/numero.txt
+index 1e8b314..7ed6ff8 100644
+--- a/data/numero.txt
++++ b/data/numero.txt
+@@ -1 +1 @@
+-6
++5
+
+1.35 git merge new-feature
+git merge new-feature
+Automezclado data/numero.txt
+CONFLICTO(contenido): conflicto de fusión en data/numero.txt
+Automatic merge failed; fix conflicts and then commit the result.
+
+RESOLVEMOS EL CONFLICTO MANUALMENTE COMO LA SUMA DE 5+6, y commit
+
+1.36 rm data/letra.txt
+git add data/letra.txt
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ git commit -m "11"
+[master 879e1c8] 11
+ 1 file changed, 1 deletion(-)
+ delete mode 100644 data/letra.txt
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ gitgraph
+* 879e1c8 (HEAD -> master) 11
+*   b74c593 b 11
+|\
+| * acfe03a (new-feature) b 5
+* | 244501b b 6
+|/
+*   9d27736 b 4
+|\
+| * 71b9562 a 4
+* | cbf992f b 3
+|/
+* e472b56 a 3
+* 208125a a 2
+* b5f8c7d a 1
+
+EJERCICIO 2
+
+2.1 mkdir beta, cd beta, git init
+
+2.2 mkdir data
+
+2.3  echo a > data/letra.txt
+
+2.4  echo 1 > data/numero.txt
+
+2.5 cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ git add data/letra.txt
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ git add data/numero.txt
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ git commit -m "a 1"
+
+2.6 echo 2 > data/numero.txt
+
+2.7 git add, git commit "a 2"
+
+2.8  git log
+commit cf89f24934fed67e73e95137de4f8cd79b4cfcef
+Author: ChristianBermejoGuerrero <cbermejog7@gmail.com>
+Date:   Thu Nov 2 16:01:57 2017 +0100
+
+    a 2
+
+commit e3b62a52890c69d9054724254eb22b0abf19ce3c
+Author: ChristianBermejoGuerrero <cbermejog7@gmail.com>
+Date:   Thu Nov 2 16:00:16 2017 +0100
+
+    a 1
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ git checkout cf89f24
+Note: checking out 'cf89f24'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by performing another checkout.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -b with the checkout command again. Example:
+
+  git checkout -b <new-branch-name>
+
+HEAD se encuentra en cf89f24... a 2
+
+gitgraph
+* cf89f24 (HEAD, master) a 2
+* e3b62a5 a 1
+
+2.9 echo 3 > data/numero.txt
+
+2.10 cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ git add data/numero.txt
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ git commit -m "a 3"
+[detached HEAD b4e8a6e] a 3
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ gitgraph
+* b4e8a6e (HEAD) a 3
+* cf89f24 (master) a 2
+* e3b62a5 a 1
+
+2.11 git branch new-feature
+
+2.12 cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ git branch
+* (HEAD detached from cf89f24)
+  master
+  new-feature
+
+2.13 git checkout master
+
+2.14 git diff master..new-feature
+diff --git a/data/numero.txt b/data/numero.txt
+index 0cfbf08..00750ed 100644
+--- a/data/numero.txt
++++ b/data/numero.txt
+@@ -1 +1 @@
+-2
++3
+
+2.15 echo "'789'" > data/numero.txt
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ cat data/numero.txt
+'789'
+
+2.16 cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ git checkout new-feature
+error: Your local changes to the following files would be overwritten by checkout:
+	data/numero.txt
+Please, commit your changes or stash them before you can switch branches.
+Aborting
+
+2.17 git stash
+Saved working directory and index state WIP on master: cf89f24 a 2
+HEAD is now at cf89f24 a 2
+
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ git checkout new-feature
+Switched to branch 'new-feature'
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ gitgraph
+*   7cf4342 (refs/stash) WIP on master: cf89f24 a 2
+|\
+| * 2acb311 index on master: cf89f24 a 2
+|/
+| * b4e8a6e (HEAD -> new-feature) a 3
+|/
+* cf89f24 (master) a 2
+* e3b62a5 a 1
+
+2.18 git rebase master
+Current branch new-feature is up to date. (NO HACE NADA)
+
+2.19 git rebase new-feature
+First, rewinding head to replay your work on top of it...
+Fast-forwarded master to new-feature.
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ gitgraph
+*   7cf4342 (refs/stash) WIP on master: cf89f24 a 2
+|\
+| * 2acb311 index on master: cf89f24 a 2
+|/
+| * b4e8a6e (HEAD -> master, new-feature) a 3
+|/
+* cf89f24 a 2
+* e3b62a5 a 1
+
+cat data/numero.txt
+3
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ git stash apply
+Automezclado data/numero.txt
+CONFLICTO(contenido): conflicto de fusión en data/numero.txt
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ gitgraph
+*   d60f9ff (refs/stash) WIP on master: 48fb97b a 2
+|\
+| * a379859 index on master: 48fb97b a 2
+|/
+| * dcd62ec (HEAD -> new-feature) a 3
+|/
+* 48fb97b (master) a 2
+* 3be262e a 1
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/beta$ cat data/numero.txt
+<<<<<<< Updated upstream
+3
+=======
+'789'
+>>>>>>> Stashed changes
+
+2.20 echo 4
+
+2.21 git add, git commit "a 4"
+
+2.22 git checkout new-feature
+
+2.23 echo b
+
+2.24 git add, git commit "b 3"
+
+2.25 git rebase master
+
+
+
+
+EJERCICIO 3
+3.1 cp -r alpha gamma
+
+3.2 git merge master
+Updating acfe03a..879e1c8
+Fast-forward
+ data/letra.txt  | 1 -
+ data/numero.txt | 2 +-
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+ delete mode 100644 data/letra.txt
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/gamma$ gitgraph
+* 879e1c8 (HEAD -> new-feature, master) 11
+*   b74c593 b 11
+|\
+| * acfe03a b 5
+* | 244501b b 6
+|/
+*   9d27736 b 4
+|\
+| * 71b9562 a 4
+* | cbf992f b 3
+|/
+* e472b56 a 3
+* 208125a a 2
+* b5f8c7d a 1
+
+3.3 CREAMOS EL FICHERO DATA/Complex.java
+
+3.4 git add, git commit
+
+3.5 git checkout master, git branch new-feature-2
+
+3.6 CREAMOS EL FICHERO DATA/Point.java en la nueva rama feature2
+
+3.7 git add, git commit
+
+3.8 git checkout master, CREAMOS EL FICHERO DATA/MAIN.java
+
+3.9 git add, git commit
+
+3.10 git cherry-pick (SHA1 del commit de 11 POINT que es el que tiene el fichero que queremos)
+
+3.11 git commit -amend -m
+
+3.12  git branch -D new-feature-2
+Eliminada la rama new-feature-2 (era a707b82)
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/gamma$ git branch -D new-feature
+Eliminada la rama new-feature (era 4b8749f)
+
+gitgraph
+* 3539818 (HEAD -> master) 11 Main-Point
+* f5d7554 11 Main
+* 879e1c8 11
+*   b74c593 b 11
+|\
+| * acfe03a b 5
+* | 244501b b 6
+|/
+*   9d27736 b 4
+|\
+| * 71b9562 a 4
+* | cbf992f b 3
+|/
+* e472b56 a 3
+* 208125a a 2
+* b5f8c7d a 1
+
+(Otros gestores de mantenimiento, al procesar el trabajo recibido de las personas colaboradoras, en lugar de
+fusiones (merge), suelen preferir reorganizar (rebase)o entresacar (cherry-pick) sobre su propia rama principal;
+obteniendo así un historial prácticamente lineal. Cuando desees integrar el trabajo que tienes en una rama
+puntual, te puedes situar sobre ella y lanzar el comando 'rebase'; de esta forma recompondrás los cambios
+encima de tu actual rama 'master' (o 'develop' o lo que corresponda). Si funciona, se realizará un avance
+rápido (fast-forward) en tu rama 'master', y acabarás teniendo un historial lineal en tu proyecto.)
+
+(El otro camino para introducir trabajo de una rama en otra, es entresacarlo. Entresacar (cherry-pick) en Git
+es como reorganizar (rebase) una sola confirmación de cambios (commit). Se trata de coger el parche introducido
+por una determinada confirmación de cambios e intentar reaplicarlo sobre la rama donde te encuentres en ese
+momento. Puede ser util si tienes varias confirmaciones de cambios en una rama puntual, y tan solo deseas
+integar una de ellas; o si tienes una única confirmación de cambios en una rama puntual, y prefieres
+entresacarla en lugar de reorganizar.)
+
+EJERCICIO 4
+
+4.1 cp -r alpha remoteRepo
+
+4.2 gitgraph
+* 879e1c8 (HEAD -> master) 11
+*   b74c593 b 11
+|\
+| * acfe03a (new-feature) b 5
+* | 244501b b 6
+|/
+*   9d27736 b 4
+|\
+| * 71b9562 a 4
+* | cbf992f b 3
+|/
+* e472b56 a 3
+* 208125a a 2
+* b5f8c7d a 1
+
+4.3 git remote add remoteRepo ../remoteRepo (desde el repositorio alpha)
+
+4.4 (ESTANDO EN LA RAMA MASTER, MODIFICAMOS EL FICHERO DATA/NUMERO.TXT)
+
+4.5 git add, git commit
+gitgraph
+* 56341a3 (HEAD -> master) 12
+* 879e1c8 11
+*   b74c593 b 11
+|\
+| * acfe03a (new-feature) b 5
+* | 244501b b 6
+|/
+*   9d27736 b 4
+|\
+| * 71b9562 a 4
+* | cbf992f b 3
+|/
+* e472b56 a 3
+* 208125a a 2
+* b5f8c7d a 1
+
+4.6 VAMOS AL REPOSITORIO ALPHA
+
+4.7 git fetch remoteRepo master
+remote: Counting objects: 4, done.
+remote: Total 4 (delta 0), reused 0 (delta 0)
+Unpacking objects: 100% (4/4), done.
+De ../remoteRepo
+ * branch            master     -> FETCH_HEAD
+ * [new branch]      master     -> remoteRepo/master
+
+(OBTIENE EL NUEVO COMMIT REALIZADO EN LA RAMA MASTER DEL REPOSITORIO REMOREREPO DESDE EL REPOSITORIO ALPHA)
+
+4.8 gitgraph
+* 56341a3 (remoteRepo/master) 12
+* 879e1c8 (HEAD -> master) 11
+*   b74c593 b 11
+|\
+| * acfe03a (new-feature) b 5
+* | 244501b b 6
+|/
+*   9d27736 b 4
+|\
+| * 71b9562 a 4
+* | cbf992f b 3
+|/
+* e472b56 a 3
+* 208125a a 2
+* b5f8c7d a 1
+
+(TRAS EJECUTAR GIT FETCH LA ETIQUETA FETCH_HEAD APUNTA A LA RAMA LOCAL EN EL REPO ALPHA EN EL QUE SE
+COPIAN LOS COMMITS REMOTOS: REMOTEREPO/MASTER)
+
+(FETCH_HEAD is a short-lived ref, to keep track of what has just been fetched from the remote repository.
+git pull first invokes git fetch, in normal cases fetching a branch from the remote; FETCH_HEAD points
+to the tip of this branch (it stores the SHA1 of the commit, just as branches do). git pull then invokes
+git merge, merging FETCH_HEAD into the current branch.
+
+The result is exactly what you'd expect: the commit at the tip of the appropriate remote branch is merged
+into the commit at the tip of your current branch.
+
+This is a bit like doing git fetch without arguments (or git remote update), updating all your remote branches,
+then running git merge origin/<branch>, but using FETCH_HEAD internally instead to refer to whatever single
+ref was fetched, instead of needing to name things.)
+
+4.9 git merge FETCH_HEAD
+Updating 879e1c8..56341a3
+Fast-forward
+ data/numero.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ gitgraph
+* 56341a3 (HEAD -> master, remoteRepo/master) 12
+* 879e1c8 11
+*   b74c593 b 11
+|\
+| * acfe03a (new-feature) b 5
+* | 244501b b 6
+|/
+*   9d27736 b 4
+|\
+| * 71b9562 a 4
+* | cbf992f b 3
+|/
+* e472b56 a 3
+* 208125a a 2
+* b5f8c7d a 1
+
+4.10 git merge remoteRepo/masterAlready up-to-date.
+gitgraph
+* 56341a3 (HEAD -> master, remoteRepo/master) 12
+* 879e1c8 11
+*   b74c593 b 11
+|\
+| * acfe03a (new-feature) b 5
+* | 244501b b 6
+|/
+*   9d27736 b 4
+|\
+| * 71b9562 a 4
+* | cbf992f b 3
+|/
+* e472b56 a 3
+* 208125a a 2
+* b5f8c7d a 1
+
+4.11 git pull remoteRepo master
+De ../remoteRepo
+ * branch            master     -> FETCH_HEAD
+Already up-to-date.
+gitgraph
+* 56341a3 (HEAD -> master, remoteRepo/master) 12
+* 879e1c8 11
+*   b74c593 b 11
+|\
+| * acfe03a (new-feature) b 5
+* | 244501b b 6
+|/
+*   9d27736 b 4
+|\
+| * 71b9562 a 4
+* | cbf992f b 3
+|/
+* e472b56 a 3
+* 208125a a 2
+* b5f8c7d a 1
+
+(GIT PULL ES EQUIVALENTE A GIT FETCH + GIT MERGE)
+
+4.12 (CLONAR UN REPOSITORIO REMOTO CON GIT CLONE ES EQUIVALENTE A GIT INIT + GIT ADD REMOTE + GIT PULL)
+
+4.13 git clone alpha remoteRepoNObare
+
+4.14  echo 13 > data/numero.txt
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ cat data/numero.txt
+13
+
+4.15 git add, git commit
+
+4.16 git remote add remoteRepoNObare ../remoteRepoNObare
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ git remote -v
+remoteRepo	../remoteRepo (fetch)
+remoteRepo	../remoteRepo (push)
+remoteRepoNObare	../remoteRepoNObare (fetch)
+remoteRepoNObare	../remoteRepoNObare (push)
+
+4.17 (PUSH DEL NUEVO COMMIT DE ALPHA A REMOTEREPONOBARE, HACERLO MODIFICARIA EN REMOTEREPONOBARE LA ETIQUETA
+HEAD, LO QUE PODRIA CREAR OCNFUSION EN EL USUARIO DEL REPO REMOTEREPONOBARE, POR LO QUE GIT NO LO TOLERA)
+
+git push remoteRepoNObare master
+Counting objects: 4, done.
+Writing objects: 100% (4/4), 289 bytes | 0 bytes/s, done.
+Total 4 (delta 0), reused 0 (delta 0)
+remote: error: refusing to update checked out branch: refs/heads/master
+remote: error: By default, updating the current branch in a non-bare repository
+remote: error: is denied, because it will make the index and work tree inconsistent
+remote: error: with what you pushed, and will require 'git reset --hard' to match
+remote: error: the work tree to HEAD.
+remote: error:
+remote: error: You can set 'receive.denyCurrentBranch' configuration variable to
+remote: error: 'ignore' or 'warn' in the remote repository to allow pushing into
+remote: error: its current branch; however, this is not recommended unless you
+remote: error: arranged to update its work tree to match what you pushed in some
+remote: error: other way.
+remote: error:
+remote: error: To squelch this message and still keep the default behaviour, set
+remote: error: 'receive.denyCurrentBranch' configuration variable to 'refuse'.
+To ../remoteRepoNObare
+ ! [remote rejected] master -> master (branch is currently checked out)
+error: failed to push some refs to '../remoteRepoNObare'
+
+4.18 (EL REPOSITORIO DESTINO DE UN GIT PUSH HA DE HABER SIDO CREADO COMO UN REPOSITORIO BARE. LOS QUE CREAS
+EN GITHUB SON REPOS BARE)
+
+4.19 (ESTA VEZ CREAMOS OTRO REPO REMOTO PERO BARE)
+git clone alpha remoteRepoBare --bare
+Cloning into bare repository 'remoteRepoBare'...
+hecho.
+
+4.20 echo 14 > data/numero.txt
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ git add data/numero.txt
+cbermejo@cbg:~/Escritorio/practicaISI-GIT2/alpha$ git commit -m "14"
+[master 5b04d66] 14
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+4.21 gitgraph (ALPHA)
+* 5b04d66 (HEAD -> master) 14
+* 0a5c214 13
+* 56341a3 (remoteRepo/master) 12
+* 879e1c8 11
+*   b74c593 b 11
+|\
+| * acfe03a (new-feature) b 5
+* | 244501b b 6
+|/
+*   9d27736 b 4
+|\
+| * 71b9562 a 4
+* | cbf992f b 3
+|/
+* e472b56 a 3
+* 208125a a 2
+* b5f8c7d a 1
+
+gitgraph (REMOTEREPOBARE)
+* 0a5c214 (HEAD -> master) 13
+* 56341a3 12
+* 879e1c8 11
+*   b74c593 b 11
+|\
+| * acfe03a (new-feature) b 5
+* | 244501b b 6
+|/
+*   9d27736 b 4
+|\
+| * 71b9562 a 4
+* | cbf992f b 3
+|/
+* e472b56 a 3
+* 208125a a 2
+* b5f8c7d a 1
+
+4.22 git push remoteRepoBare masterCounting objects: 4, done.
+Writing objects: 100% (4/4), 290 bytes | 0 bytes/s, done.
+Total 4 (delta 0), reused 0 (delta 0)
+To ../remoteRepoBare
+   0a5c214..5b04d66  master -> master
+
+4.23 gitgraph
+* 5b04d66 (HEAD -> master) 14
+* 0a5c214 13
+* 56341a3 12
+* 879e1c8 11
+*   b74c593 b 11
+|\
+| * acfe03a (new-feature) b 5
+* | 244501b b 6
+|/
+*   9d27736 b 4
+|\
+| * 71b9562 a 4
+* | cbf992f b 3
+|/
+* e472b56 a 3
+* 208125a a 2
+* b5f8c7d a 1
+
+4.24
